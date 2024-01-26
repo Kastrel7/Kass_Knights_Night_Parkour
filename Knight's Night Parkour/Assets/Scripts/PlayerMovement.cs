@@ -72,6 +72,11 @@ public class PlayerMovement : MonoBehaviour
             transform.position = new Vector3(0, 1, 0);
             controller.enabled = true;
         } 
+
+        if (Input.GetKeyDown(KeyCode.K)) 
+        {
+            controller.Move(new Vector3(0.5f, 0, 0));
+        }
     }
 
     
