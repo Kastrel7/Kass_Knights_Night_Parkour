@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -7,7 +8,6 @@ public class PlayerMovement : MonoBehaviour
     Animator animator;
     CharacterController controller;
     public Transform cam;
-    Rigidbody rb;
 
     public float jumpHeight = 7;
     public float moveSpeed = 7;
@@ -24,7 +24,6 @@ public class PlayerMovement : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
-        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -34,7 +33,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space))
         {
-            Jump();
+            animator.SetBool("jumping", true);
+
+            if (controller.isGrounded)
+            {
+                float jumpVelocity = Mathf.Sqrt(-2 * gravity * jumpHeight);
+                velocityY = jumpVelocity;
+            }
         }
 
         if (inputDir != Vector2.zero)
@@ -61,25 +66,13 @@ public class PlayerMovement : MonoBehaviour
         float animationSpeedPercent = ((running) ? 1 : 1) * inputDir.magnitude;
         animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
 
-        if (rb.velocity.y < 1)
+        if (transform.position.y < -20)
         {
-            animator.SetBool("falling", true);
-        }
-        else
-        {
-            animator.SetBool("falling", false);
-        }
+            controller.enabled = false;
+            transform.position = new Vector3(0, 1, 0);
+            controller.enabled = true;
+        } 
     }
 
-    void Jump()
-    {
-        animator.SetBool("jumping", true);
-
-        if (controller.isGrounded)
-        {
-            float jumpVelocity = Mathf.Sqrt(-2 * gravity * jumpHeight);
-            velocityY = jumpVelocity;
-        }
-    }
-
+    
 }
