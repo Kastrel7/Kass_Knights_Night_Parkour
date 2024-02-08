@@ -1,35 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class move : MonoBehaviour
 {
-    Animator animator;
-    CharacterController controller;
-    public Transform cam;
     Rigidbody rb;
+    Animator animator;
+    Transform flag;
 
-    public float jumpHeight = 7;
+    public Transform cam;
+
     public float moveSpeed = 7;
+    public float jump = 10;
     public float turnSmoothTime = 0.2f;
     public float speedSmoothTime = 0.05f;
-    public float gravity = -9.8f;
     float turnSmoothVelocity;
-    float velocityY;
-    bool grounded;
-    Vector3 respawn;
 
     bool running;
+    bool grounded;
+
+    Vector3 respawn;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        animator = GetComponent<Animator>();
-        controller = GetComponent<CharacterController>();
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
 
         grounded = true;
+
+        flag = GameObject.FindWithTag("Respawn").transform;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -40,6 +41,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Respawn"))
+        {
+            respawn = transform.position;
+            print(respawn);
+        }
+    }
+
+    // Update is called once per frame
     void Update()
     {
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -51,8 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (grounded)
             {
-                float jumpVelocity = Mathf.Sqrt(-2 * gravity * jumpHeight);
-                velocityY = jumpVelocity;
+                rb.AddForce(Vector3.up * jump);
                 grounded = false;
             }
         }
@@ -61,40 +71,43 @@ public class PlayerMovement : MonoBehaviour
         {
             running = true;
             float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
-        }
 
+            Debug.Log(string.Format("{0} -- {1}",targetRotation, transform.rotation));
+
+            if(targetRotation - transform.eulerAngles.magnitude > 90)
+            {
+                transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, 0);
+            }
+            else
+            {
+                transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
+            }
+            
+        }
+        
         running = false;
         float speed = moveSpeed * inputDir.magnitude;
 
-        velocityY += Time.deltaTime * gravity;
-        Vector3 velocity = transform.forward * speed + Vector3.up * velocityY;
+        Vector3 velocity = transform.forward * speed;
 
-        controller.Move(velocity * Time.deltaTime);
-
-        if (controller.isGrounded)
-        {
-            velocityY = 0;
-            animator.SetBool("jumping", false);
-        }
+        transform.position += (velocity * Time.deltaTime);
 
         float animationSpeedPercent = ((running) ? 1 : 1) * inputDir.magnitude;
         animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
 
+        if(grounded)
+        {
+            animator.SetBool("jumping", false);
+        }
+
         if (transform.position.y < -20)
         {
-            Respawn(new Vector3(0, 0, 0));
-        } 
-
+            Respawn(respawn);
+        }
     }
 
     void Respawn(Vector3 respawn)
     {
-        controller.enabled = false;
         transform.position = respawn;
-        controller.enabled = true;
     }
-
-
-
 }
