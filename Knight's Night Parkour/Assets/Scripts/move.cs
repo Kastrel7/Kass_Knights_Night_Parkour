@@ -12,7 +12,7 @@ public class move : MonoBehaviour
 
     public float moveSpeed = 7;
     public float jump = 10;
-    public float turnSmoothTime = 0.2f;
+    float turnSmoothTime = 0.2f;
     public float speedSmoothTime = 0.05f;
     float turnSmoothVelocity;
 
@@ -70,11 +70,15 @@ public class move : MonoBehaviour
         if (inputDir != Vector2.zero)
         {
             running = true;
+
             float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
+            float currentRotation = Mathf.Atan2(transform.forward.z, transform.forward.x) * Mathf.Rad2Deg; 
 
-            Debug.Log(string.Format("{0} -- {1}",targetRotation, transform.rotation));
+            float val = Mathf.Abs((currentRotation - targetRotation) % 90f);
 
-            if(targetRotation - transform.eulerAngles.magnitude > 90)
+            print(string.Format("({0} - {1}) % 90  =  {2}", currentRotation, targetRotation, val));
+
+            if ((val < 5) || (val > 85))
             {
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, 0);
             }
@@ -82,10 +86,11 @@ public class move : MonoBehaviour
             {
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
             }
-            
+            //transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
         }
-        
         running = false;
+
+
         float speed = moveSpeed * inputDir.magnitude;
 
         Vector3 velocity = transform.forward * speed;
