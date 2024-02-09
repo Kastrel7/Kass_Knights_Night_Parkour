@@ -72,7 +72,8 @@ public class move : MonoBehaviour
             running = true;
 
             float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            float currentRotation = Mathf.Atan2(transform.forward.z, transform.forward.x) * Mathf.Rad2Deg; 
+            //float currentRotation = Mathf.Atan2(transform.forward.z, transform.forward.x) * Mathf.Rad2Deg; 
+            float currentRotation = transform.eulerAngles.y;
 
             float val = Mathf.Abs((currentRotation - targetRotation) % 90f);
 
