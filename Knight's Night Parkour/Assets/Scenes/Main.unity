@@ -258,7 +258,6 @@ MonoBehaviour:
   cam: {fileID: 963194228}
   moveSpeed: 7
   jump: 400
-  turnSmoothTime: 0.2
   speedSmoothTime: 0.05
 --- !u!65 &739602754
 BoxCollider:
