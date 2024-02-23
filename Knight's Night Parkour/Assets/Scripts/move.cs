@@ -77,10 +77,11 @@ public class move : MonoBehaviour
 
             float val = Mathf.Abs((currentRotation - targetRotation) % 90f);
 
-            print(string.Format("({0} - {1}) % 90  =  {2}", currentRotation, targetRotation, val));
+            //print(string.Format("({0} - {1}) % 90  =  {2}", currentRotation, targetRotation, val));
 
-            if ((val < 5) || (val > 85))
+            if ( (val < 5) || (val > 85) )
             {
+                //print(cam.eulerAngles.y);
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, 0);
             }
             else
