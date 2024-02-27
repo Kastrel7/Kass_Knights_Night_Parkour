@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
 public class move : MonoBehaviour
@@ -15,8 +17,9 @@ public class move : MonoBehaviour
     float turnSmoothTime = 0.2f;
     public float speedSmoothTime = 0.05f;
     float turnSmoothVelocity;
+    public static Vector2 inputDir;
 
-    bool running;
+    public static bool running;
     bool grounded;
 
     Vector3 respawn;
@@ -54,7 +57,7 @@ public class move : MonoBehaviour
     void Update()
     {
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        Vector2 inputDir = input.normalized;
+        inputDir = input.normalized;
 
         if (Input.GetKey(KeyCode.Space))
         {
@@ -68,27 +71,25 @@ public class move : MonoBehaviour
         }
 
         if (inputDir != Vector2.zero)
-        {
+        {            
+            bool nintey = Mathf.Abs(transform.eulerAngles.y - cam.eulerAngles.y) > 90;
             running = true;
 
             float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            //float currentRotation = Mathf.Atan2(transform.forward.z, transform.forward.x) * Mathf.Rad2Deg; 
             float currentRotation = transform.eulerAngles.y;
 
-            float val = Mathf.Abs((currentRotation - targetRotation) % 90f);
+            float val = Mathf.Abs((currentRotation - targetRotation) % 90f); //dgetHorizontalAngleBetween(transform, cam)
 
-            //print(string.Format("({0} - {1}) % 90  =  {2}", currentRotation, targetRotation, val));
 
-            if ( (val < 5) || (val > 85) )
+            if ((/*(val < 5) || */ (val > 85)) || nintey)
             {
-                //print(cam.eulerAngles.y);
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, 0);
+                print(Mathf.Abs(transform.eulerAngles.y - cam.eulerAngles.y).ToString() + "            " + val.ToString());
             }
             else
             {
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
             }
-            //transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
         }
         running = false;
 
@@ -111,6 +112,14 @@ public class move : MonoBehaviour
         {
             Respawn(respawn);
         }
+    }
+
+    private float getHorizontalAngleBetween(Transform trans1, Transform cam)
+    {
+       Vector3 charFor = new Vector3(trans1.forward.x, 0f, trans1.forward.z) .normalized;   
+       Vector3 camFor = new Vector3(cam.forward.x, 0f, cam.forward.z).normalized;
+
+       return Mathf.Rad2Deg * Mathf.Acos(Vector3.Dot(charFor, camFor));
     }
 
     void Respawn(Vector3 respawn)
