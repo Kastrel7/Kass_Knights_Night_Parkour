@@ -15,17 +15,23 @@ public class CameraMovement : MonoBehaviour
     public float height;
     public float fov = 2;       
 
-    float yaw;
+    public static float yaw;
 
     // Update is called once per frame
     void LateUpdate()
     {
         yaw += Input.GetAxis("Mouse X") * sensitivity;
-
+        
         currentRotation = Vector3.SmoothDamp(currentRotation, new Vector3(height, yaw), ref rotationSmoothVelocity, 0);
 
         transform.eulerAngles = currentRotation;
 
         transform.position = target.position + new Vector3(0, fov, 0) - transform.forward * disFromTarget;
     }
+
+    //void Update()
+    //{
+    //    print("Yaw = " + yaw.ToString() + "   -   Rotation = " + target.rotation.y.ToString() + "   -   eulerAngle = " + target.eulerAngles.y.ToString());
+    //    yaw = Mathf.Clamp(yaw, target.eulerAngles.y - 75, target.eulerAngles.y + 75);
+    //}
 }
