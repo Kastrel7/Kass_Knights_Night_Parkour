@@ -9,20 +9,23 @@ public class move : MonoBehaviour
     Rigidbody rb;
     Animator animator;
     Transform flag;
-
     public Transform cam;
 
     public float moveSpeed = 7;
-    public float jump = 10;
+    public float jump = 475;
     float turnSmoothTime = 0.2f;
     public float speedSmoothTime = 0.05f;
     float turnSmoothVelocity;
     public static Vector2 inputDir;
 
-    public static bool running;
+    bool running;
     bool grounded;
 
-    Vector3 respawn;
+    float targetRotation;
+    float currentRotation;
+
+    Vector3 respawn;//= new Vector3();
+    private bool smoothRotatingInProcess = false;
 
 
     // Start is called before the first frame update
@@ -33,6 +36,8 @@ public class move : MonoBehaviour
 
         grounded = true;
 
+        jump = 475;
+        
         flag = GameObject.FindWithTag("Respawn").transform;
     }
 
@@ -41,6 +46,7 @@ public class move : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             grounded = true;
+            moveSpeed = 7;
         }
     }
 
@@ -54,14 +60,13 @@ public class move : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
-        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        inputDir = input.normalized;
 
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             animator.SetBool("jumping", true);
+            moveSpeed = 3;
 
             if (grounded)
             {
@@ -70,37 +75,35 @@ public class move : MonoBehaviour
             }
         }
 
-        if (inputDir != Vector2.zero)
-        {            
-            bool nintey = Mathf.Abs(transform.eulerAngles.y - cam.eulerAngles.y) > 90;
+        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        inputDir = input.normalized;
+        bool moving = inputDir != Vector2.zero;
+
+        if (moving)
+        {
             running = true;
 
-            float targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            float currentRotation = transform.eulerAngles.y;
+            targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
+            currentRotation = transform.eulerAngles.y;
 
-            float val = Mathf.Abs((currentRotation - targetRotation) % 90f); //dgetHorizontalAngleBetween(transform, cam)
-
-
-            if ((/*(val < 5) || */ (val > 85)) || nintey)
+            if (shouldSharpRotate(targetRotation, currentRotation) && !smoothRotatingInProcess)
             {
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, 0);
-                print(Mathf.Abs(transform.eulerAngles.y - cam.eulerAngles.y).ToString() + "            " + val.ToString());
             }
             else
             {
+                smoothRotatingInProcess = true;
                 transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
             }
         }
+        else smoothRotatingInProcess = false;
+
         running = false;
-
-
         float speed = moveSpeed * inputDir.magnitude;
-
         Vector3 velocity = transform.forward * speed;
-
         transform.position += (velocity * Time.deltaTime);
-
         float animationSpeedPercent = ((running) ? 1 : 1) * inputDir.magnitude;
+
         animator.SetFloat("speedPercent", animationSpeedPercent, speedSmoothTime, Time.deltaTime);
 
         if(grounded)
@@ -114,12 +117,21 @@ public class move : MonoBehaviour
         }
     }
 
-    private float getHorizontalAngleBetween(Transform trans1, Transform cam)
+    private bool shouldSharpRotate(float targetRot,float currRot)
     {
-       Vector3 charFor = new Vector3(trans1.forward.x, 0f, trans1.forward.z) .normalized;   
-       Vector3 camFor = new Vector3(cam.forward.x, 0f, cam.forward.z).normalized;
+        float diff = inrange((inrange(targetRot)- inrange(currRot)));
 
-       return Mathf.Rad2Deg * Mathf.Acos(Vector3.Dot(charFor, camFor));
+        if ((diff > 85) && (diff <95)) { return true; }
+        if ((diff > 120) && (diff < 240)) { return true; }
+        if ((diff > 265) && (diff < 275)) { return true; }
+        return false;
+    }
+
+    private float inrange(float targetRot)
+    {
+       if (targetRot < 0) { return inrange(targetRot + 360f); }
+       if (targetRot >360) { return inrange(targetRot - 360f); }
+        return targetRot;
     }
 
     void Respawn(Vector3 respawn)
