@@ -17,28 +17,6 @@ public class moveWallRight : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //moveWall(start, fin);
-        if (transform.position.x >= (start - 0.5f) && transform.position.x <= (start + 0.5f))
-        {
-            retracting = false;
-        }
-        if (transform.position.x >= (fin - 0.5f) && transform.position.x <= (fin + 0.5f))
-        {
-            retracting = true;
-        }
-
-        if (!retracting)
-        {
-            transform.position = transform.position - new Vector3(0.02f, 0, 0);
-        }
-        else if (retracting)
-        {
-            transform.position = transform.position + new Vector3(0.02f, 0, 0);
-        }
-    }
-
-    private void moveWall(float start, float fin)
-    {
-
+        transform.position = new Vector3(Mathf.PingPong(Time.time * 7, start - fin) + fin, transform.position.y, transform.position.z);
     }
 }
