@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Character : MonoBehaviour
 {
@@ -47,6 +48,12 @@ public class Character : MonoBehaviour
         {
             grounded = true;
             moveSpeed = 7;
+        }
+        if (collision.gameObject.name == "Finish")
+        {
+            transform.position = new Vector3(0, 1, 0);
+            respawn = new Vector3(0, 1, 0);
+            SceneManager.LoadScene("Finished"); 
         }
     }
 
@@ -144,5 +151,10 @@ public class Character : MonoBehaviour
     void Respawn(Vector3 respawn)
     {
         transform.position = respawn;
+    }
+
+    void Finish()
+    {
+
     }
 }
