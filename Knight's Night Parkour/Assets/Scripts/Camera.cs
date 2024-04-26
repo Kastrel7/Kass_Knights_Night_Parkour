@@ -5,8 +5,10 @@ using UnityEngine;
 public class Camera : MonoBehaviour
 {
     public float sensitivity = 2;
+
     public Transform target;
     public Rigidbody targetRB;
+
     public float disFromTarget = 5;
 
     Vector3 rotationSmoothVelocity;

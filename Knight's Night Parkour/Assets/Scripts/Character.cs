@@ -12,10 +12,12 @@ public class Character : MonoBehaviour
     Transform flag;
     public Transform cam;
 
-    public float moveSpeed = 7;
-    public float jump = 475;
+    public float moveSpeed;
+    public float jump;
+    public float speedSmoothTime;
+
+
     float turnSmoothTime = 0.2f;
-    public float speedSmoothTime = 0.05f;
     float turnSmoothVelocity;
     public static Vector2 inputDir;
 
@@ -25,7 +27,7 @@ public class Character : MonoBehaviour
     float targetRotation;
     float currentRotation;
 
-    public static Vector3 respawn;
+    Vector3 respawn;
     private bool smoothRotatingInProcess = false;
 
 
@@ -127,7 +129,7 @@ public class Character : MonoBehaviour
 
         if (transform.position.y < -20)
         {
-            Respawn(respawn);
+            Respawn();
         }
     }
 
@@ -148,13 +150,8 @@ public class Character : MonoBehaviour
         return targetRot;
     }
 
-    void Respawn(Vector3 respawn)
+    internal void  Respawn()
     {
         transform.position = respawn;
-    }
-
-    void Finish()
-    {
-
     }
 }

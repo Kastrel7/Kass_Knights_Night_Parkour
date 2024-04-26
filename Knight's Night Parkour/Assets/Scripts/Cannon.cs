@@ -6,9 +6,14 @@ using UnityEngine;
 public class Cannon : MonoBehaviour, IInteractable
 { 
     public Rigidbody rb;
+    int killCannonAt = 400;
     public void Interact(Collider other)
     {
-        other.GetComponent<Transform>().position = Character.respawn;
+        Character character = other.GetComponent<Character>();
+        if (character != null)
+        {
+            character.Respawn();
+        }
     }
 
     private void Start()
@@ -18,7 +23,7 @@ public class Cannon : MonoBehaviour, IInteractable
 
     private void Update()
     {
-        if (transform.position.z > 500)
+        if (transform.position.z > killCannonAt)
         {
             Destroy(gameObject);
         }
