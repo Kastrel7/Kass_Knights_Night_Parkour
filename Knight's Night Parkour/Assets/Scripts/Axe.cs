@@ -7,10 +7,15 @@ public class Axe : MonoBehaviour, IInteractable
     Rigidbody rb;
     float starty;
     Vector3 start;
+    int retract = 7;
 
     public void Interact(Collider other)
     {
-        other.GetComponent<Transform>().position = Character.respawn;
+        Character character = other.GetComponent<Character>();
+        if (character != null)
+        {
+            character.Respawn();
+        }
     }
 
     private void Start()
@@ -22,7 +27,7 @@ public class Axe : MonoBehaviour, IInteractable
 
     private void Update()
     {
-        if (transform.position.y < starty - 7)
+        if (transform.position.y < starty - retract)
         {
             rb.AddForce(new Vector3(0, 100, 0));
         }

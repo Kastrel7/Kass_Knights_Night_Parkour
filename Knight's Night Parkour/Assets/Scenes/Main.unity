@@ -2196,7 +2196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 963194228}
   moveSpeed: 7
-  jump: 400
+  jump: 475
   speedSmoothTime: 0.05
 --- !u!65 &739602754
 BoxCollider:
